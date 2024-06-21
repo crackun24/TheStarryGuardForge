@@ -14,9 +14,9 @@ public class QueryTask {//玩家请求的查询任务
     public int y;
     public int z;
     public String dimensionName;//维度的名字
-    public TsPlayer player;
+    public TgPlayer player;
 
-    public QueryTask(int x, int y, int z, String dimension_name, QueryType query_type,TsPlayer player, int pageId) {//构造函数
+    public QueryTask(int x, int y, int z, String dimension_name, QueryType query_type, TgPlayer player, int pageId) {//构造函数
         this.x = x;
         this.y = y;
         this.z = z;

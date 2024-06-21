@@ -11,7 +11,7 @@ public class Action {//玩家的行为类
     public static final String BUKKIT_USE = "bukkit_use";//使用桶装物品
     public static final String CHEST_USE = "chest_use";//从容器中取出物品
 
-    public TsPlayer player;
+    public TgPlayer player;
     public int posX;
     public int posY;
     public int posZ;
@@ -21,7 +21,7 @@ public class Action {//玩家的行为类
     public long time;//触发事件的时间
     public String actionType;
 
-    public Action(String action_type, TsPlayer player, String target_name, int x, int y, int z, String dimension, String action_data) {
+    public Action(String action_type, TgPlayer player, String target_name, int x, int y, int z, String dimension, String action_data) {
         this.player = player;
         this.posX = x;
         this.posY = y;

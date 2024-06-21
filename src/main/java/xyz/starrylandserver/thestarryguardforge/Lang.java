@@ -21,7 +21,7 @@ public class Lang {//语言文件类
         Lang temp = new Lang();
         temp.prop = new Properties();//创建一个properties文件的解析对象
         temp.langFilePath = file_path;//设置配置文件的路径
-        temp.ReloadConfig();;
+        temp.ReloadConfig();
         return temp;
     }
     public synchronized String getVal(String key)

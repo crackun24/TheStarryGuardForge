@@ -1,6 +1,7 @@
 package xyz.starrylandserver.thestarryguardforge;
 
 import com.mojang.logging.LogUtils;
+import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -9,7 +10,8 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
-import xyz.starrylandserver.thestarryguardforge.DataType.TsPlayer;
+import xyz.starrylandserver.thestarryguardforge.Adapter.FrogeAdapter;
+import xyz.starrylandserver.thestarryguardforge.DataType.TgPlayer;
 import xyz.starrylandserver.thestarryguardforge.Event.BlockBreakEvent;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -20,32 +22,24 @@ public class TheStarryGuardForge {
     public static final String MODID = "thestarryguardforge";
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
+    private final TgMain serviceMain;
+    private final FrogeAdapter adapter;//适配器
+    private final BlockBreakEvent blockBreakEvent;
 
-
-
-
-
-    public TheStarryGuardForge() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
-        modEventBus.addListener(this::commonSetup);
-
-        // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(BlockBreakEvent.class);
-
-        // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-    }
-
-    private void commonSetup(final FMLCommonSetupEvent event) {
-        // Some common setup code
-        LOGGER.info("HELLO FROM COMMON SETUP");
-        LOGGER.info(Config.magicNumberIntroduction + Config.magicNumber);
-    }
-
-
-    public void SendMsgToPlayer(TsPlayer player,String msg)
+    private void regEvent()//注册事件
     {
 
+        MinecraftForge.EVENT_BUS.register(blockBreakEvent);
+    }
+
+    public TheStarryGuardForge() {
+
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        this.adapter = new FrogeAdapter();
+        serviceMain = TgMain.getInstance(adapter);
+        serviceMain.start();//启动主服务
+        blockBreakEvent = new BlockBreakEvent(this.serviceMain.getDataQuery());
+
+        regEvent();//注册事件
     }
 }

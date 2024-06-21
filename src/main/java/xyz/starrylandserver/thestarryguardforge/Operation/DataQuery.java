@@ -1,23 +1,22 @@
 package xyz.starrylandserver.thestarryguardforge.Operation;
 
-import net.minecraft.world.entity.player.Player;
+import xyz.starrylandserver.thestarryguardforge.Adapter.TgAdapter;
 import xyz.starrylandserver.thestarryguardforge.DataBaseStorage.DataBase;
 import xyz.starrylandserver.thestarryguardforge.DataType.Action;
 import xyz.starrylandserver.thestarryguardforge.DataType.QueryTask;
-import xyz.starrylandserver.thestarryguardforge.DataType.TsPlayer;
+import xyz.starrylandserver.thestarryguardforge.DataType.TgPlayer;
 import xyz.starrylandserver.thestarryguardforge.Lang;
-import xyz.starrylandserver.thestarryguardforge.TheStarryGuardForge;
 import xyz.starrylandserver.thestarryguardforge.Tool;
 
 import java.util.*;
 
 public class DataQuery extends Thread {//数据查询类
-    private HashMap<TsPlayer, Byte> mPointQueryPlayer;//启用了点方块查询的玩家的哈希表,第二个数值无用
-    private TheStarryGuardForge mMain;//主线程对象
-    private HashMap<TsPlayer, QueryTask> mPlayerLastTask;//玩家上一次查询的任务对照,方便进行翻页的操作
+    private HashMap<TgPlayer, Byte> mPointQueryPlayer;//启用了点方块查询的玩家的哈希表,第二个数值无用
+    private HashMap<TgPlayer, QueryTask> mPlayerLastTask;//玩家上一次查询的任务对照,方便进行翻页的操作
     private Queue<QueryTask> mQueryTask;//查询任务的玩家
     private Boolean mCloseState;//主线程的关闭状态
     private Lang mLang;//语言文件
+    private TgAdapter adapter;//接口文件
 
     private DataQuery()//构造函数
     {
@@ -38,7 +37,7 @@ public class DataQuery extends Thread {//数据查询类
         int total_entries;//总共的条目数
 
         if (task.pageId <= 0) {
-            this.mMain.SendMsgToPlayer(task.player, this.mLang.ILLEGAL_PAGE);//发送错误消息给玩家
+            this.adapter.SendMsgToPlayer(task.player, this.mLang.getVal("illegal_page"));//发送错误消息给玩家
             return;
         }
 
@@ -50,11 +49,11 @@ public class DataQuery extends Thread {//数据查询类
                 total_page = total_entries % task.Max_PAGE_AMOUNT == 0 ? total_entries / task.Max_PAGE_AMOUNT : total_entries / task.Max_PAGE_AMOUNT + 1;
 
                 if (total_entries == 0) {
-                    this.mMain.SendMsgToPlayer(task.player, this.mLang.NO_DATA);//发送错误消息给玩家
+                    this.adapter.SendMsgToPlayer(task.player, this.mLang.getVal("no_data"));
                     return;
                 }
                 if (task.pageId > total_page) {//判断玩家查询的页数是否大于最大的页数
-                    this.mMain.SendMsgToPlayer(task.player, this.mLang.INVALID_PAGE);//发送错误消息给玩家
+                    this.adapter.SendMsgToPlayer(task.player, this.mLang.getVal("illegal_page"));//发送错误消息给玩家
                     return;
                 }
 
@@ -66,12 +65,12 @@ public class DataQuery extends Thread {//数据查询类
                 total_page = total_entries % task.Max_PAGE_AMOUNT == 0 ? total_entries / task.Max_PAGE_AMOUNT : total_entries / task.Max_PAGE_AMOUNT + 1;
 
                 if (total_entries == 0) {
-                    this.mMain.SendMsgToPlayer(task.player, this.mLang.NO_DATA);//发送错误消息给玩家
+                    this.adapter.SendMsgToPlayer(task.player, this.mLang.getVal("no_data"));//发送错误消息给玩家
                     return;
                 }
 
                 if (task.pageId > total_page) {//判断玩家查询的页数是否大于最大的页数
-                    this.mMain.SendMsgToPlayer(task.player, this.mLang.INVALID_PAGE);//发送错误消息给玩家
+                    this.adapter.SendMsgToPlayer(task.player, this.mLang.getVal("illegal_page"));//发送错误消息给玩家
                     return;
                 }
 
@@ -81,9 +80,9 @@ public class DataQuery extends Thread {//数据查询类
                 throw new IllegalStateException("Unexpected value: " + task.queryType);
         }
 
-        StringBuilder msg_to_send = new StringBuilder(String.format("§8---§4TheStarryGuard查询结果§8----§1共§3%s§1条记录§8----§1第 §3%s§8/§3%s §1页§8-----§f\n\n",
-                Integer.toString(total_entries), Integer.toString(total_entries == 0 ? 0 : task.pageId),
-                Integer.toString(total_page)));//发送给玩家的消息
+        StringBuilder msg_to_send = new StringBuilder(String.format(this.mLang.getVal("ret_msg_tittle"),
+                total_entries, total_entries == 0 ? 0 : task.pageId,
+                total_page));//发送给玩家的消息
 
         long time = System.currentTimeMillis() / 1000;
 
@@ -110,7 +109,7 @@ public class DataQuery extends Thread {//数据查询类
             String target_name;
             if (action.targetName.contains(":"))//判断是否含有分隔号:如 minecraft:stone
             {
-                String item_detail[] = action.targetName.split(":");
+                String[] item_detail = action.targetName.split(":");
                 target_name = item_detail[1];//获取名字
             } else {
                 target_name = action.targetName;
@@ -124,7 +123,7 @@ public class DataQuery extends Thread {//数据查询类
         msg_to_send.append("\n\n§8使用 §2/tg page 页数 §8即可翻页.");
         this.mPlayerLastTask.put(task.player, task);//放入玩家与上一个任务的映射中
 
-        this.mMain.SendMsgToPlayer(task.player, msg_to_send.toString());//默认发送第一页的内容
+        this.adapter.SendMsgToPlayer(task.player, msg_to_send.toString());//默认发送第一页的内容
     }
 
     private Boolean GetCloseState()//获取关闭状态
@@ -152,17 +151,17 @@ public class DataQuery extends Thread {//数据查询类
     }
 
 
-    public synchronized Boolean IsPlayerEnablePointQuery(TsPlayer player)//判断玩家是否启用了点方块查询的指令
+    public synchronized Boolean IsPlayerEnablePointQuery(TgPlayer player)//判断玩家是否启用了点方块查询的指令
     {
         return this.mPointQueryPlayer.containsKey(player);//判断是否含有这个键,如果有则直接返回true
     }
 
-    public synchronized void EnablePlayerPointQuery(TsPlayer player)//启用玩家的点查询
+    public synchronized void EnablePlayerPointQuery(TgPlayer player)//启用玩家的点查询
     {
         this.mPointQueryPlayer.put(player, null);//插入到查询列表中
     }
 
-    public synchronized void DisablePlayerPointQuery(TsPlayer player)//关闭玩家的点查询
+    public synchronized void DisablePlayerPointQuery(TgPlayer player)//关闭玩家的点查询
     {
         this.mPointQueryPlayer.remove(player);//删除在查询列表中的玩家
     }
@@ -177,11 +176,11 @@ public class DataQuery extends Thread {//数据查询类
         this.mCloseState = true;//设置关闭状态成立
     }
 
-    public synchronized void AddPageQuery(TsPlayer player, int page)//有页数的查询
+    public synchronized void AddPageQuery(TgPlayer player, int page)//有页数的查询
     {
         if (!this.mPlayerLastTask.containsKey(player)) //判断是否有这个玩家的上一次请求
         {
-            this.mMain.SendMsgToPlayer(player, this.mLang.INVALID_PAGE);
+            this.adapter.SendMsgToPlayer(player, this.mLang.getVal("illegal_page"));
             return;
         }
         QueryTask task = this.mPlayerLastTask.get(player);//获取玩家的上一次的任务
@@ -190,15 +189,15 @@ public class DataQuery extends Thread {//数据查询类
         this.mQueryTask.add(task);//将改写后的任务添加进队列中
     }
 
-    static public DataQuery GetDataQuery(DataBase data_base, TheStarryGuardForge main, Lang lang) {//创建一个data_query对象
+    static public DataQuery GetDataQuery(DataBase data_base,TgAdapter adapter,Lang lang) {//创建一个data_query对象
         DataQuery temp = new DataQuery();
         temp.mDataBase = data_base;//设置使用的数据库
         temp.mPointQueryPlayer = new HashMap<>();//初始化哈希表
         temp.mQueryTask = new LinkedList<>();//初始化查询任务的队列
         temp.mPlayerLastTask = new HashMap<>();//初始化玩家的上一个哈希表
         temp.mCloseState = false;
-        temp.mMain = main;
         temp.mLang = lang;
+        temp.adapter = adapter;
         return temp;//返回构造好的对象
     }
 }

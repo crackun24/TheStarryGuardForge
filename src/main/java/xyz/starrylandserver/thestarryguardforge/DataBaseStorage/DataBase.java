@@ -2,7 +2,7 @@ package xyz.starrylandserver.thestarryguardforge.DataBaseStorage;
 
 
 import xyz.starrylandserver.thestarryguardforge.DataType.Action;
-import xyz.starrylandserver.thestarryguardforge.DataType.TsPlayer;
+import xyz.starrylandserver.thestarryguardforge.DataType.TgPlayer;
 import xyz.starrylandserver.thestarryguardforge.DataType.QueryTask;
 import xyz.starrylandserver.thestarryguardforge.DataType.Tables;
 
@@ -35,14 +35,14 @@ public abstract class DataBase {//数据库的通用接口定义
     protected PreparedStatement Query_area_action_count;//查询区域的行为的数量
 
     public enum DataBaseStorageType {MYSQL, SQL_LITE}//数据的储存使用的数据库类型
-    protected HashMap<TsPlayer, Integer> playerIdMap = new HashMap<>();//玩家对象和ID的映射
+    protected HashMap<TgPlayer, Integer> playerIdMap = new HashMap<>();//玩家对象和ID的映射
     protected HashMap<String, Integer> actionIdMap = new HashMap<>();//玩家行为和ID的映射
     protected HashMap<String, Integer> entityIdMap = new HashMap<>();//实体的名字和ID的映射
     protected HashMap<String, Integer> dimensionIdMap = new HashMap<>();//维度的名字和ID的映射
     protected HashMap<String, Integer> itemIdMap = new HashMap<>();//物品的ID和ID的映射
 
 
-    protected HashMap<Integer, TsPlayer> idPlayerMap = new HashMap<>();//玩家id和玩家对象的映射
+    protected HashMap<Integer, TgPlayer> idPlayerMap = new HashMap<>();//玩家id和玩家对象的映射
     protected HashMap<Integer, String> idActionMap = new HashMap<>();//玩家的行为ID和玩家的行为的映射
     protected HashMap<Integer, String> idEntityMap = new HashMap<>();//实体的id和实体的名字的映射
     protected HashMap<Integer, String> idDimensionMap = new HashMap<>();//维度ID和维度的映射
@@ -54,13 +54,13 @@ public abstract class DataBase {//数据库的通用接口定义
         Statement stmt = this.mConn.createStatement();//创建查询
         ResultSet res = stmt.executeQuery(query_str);//执行查询
 
-        HashMap<TsPlayer, Integer> player_id = new HashMap<>();//创建一个临时的表,如果发生了意外可以保证原有的表不损坏
-        HashMap<Integer, TsPlayer> id_player = new HashMap<>();
+        HashMap<TgPlayer, Integer> player_id = new HashMap<>();//创建一个临时的表,如果发生了意外可以保证原有的表不损坏
+        HashMap<Integer, TgPlayer> id_player = new HashMap<>();
 
         while (res.next())//遍历结果集
         {
-            id_player.put(res.getInt("id"), new TsPlayer(res.getString("name"), res.getString("uuid")));//将对象插入临时的表中
-            player_id.put(new TsPlayer(res.getString("name"), res.getString("uuid")), res.getInt("id"));//将对象插入临时的表中
+            id_player.put(res.getInt("id"), new TgPlayer(res.getString("name"), res.getString("uuid")));//将对象插入临时的表中
+            player_id.put(new TgPlayer(res.getString("name"), res.getString("uuid")), res.getInt("id"));//将对象插入临时的表中
         }
 
         this.idPlayerMap.clear();//清空原有的表
@@ -199,7 +199,7 @@ public abstract class DataBase {//数据库的通用接口定义
         }
     }
 
-    protected synchronized int GetOrCreatePlayerMap(TsPlayer player) throws Exception {
+    protected synchronized int GetOrCreatePlayerMap(TgPlayer player) throws Exception {
 
         if (!this.playerIdMap.containsKey(player))//表中没有这个数据
         {
@@ -251,7 +251,7 @@ public abstract class DataBase {//数据库的通用接口定义
         }
     }
 
-    protected synchronized TsPlayer GetPlayerById(int player_id) throws Exception {
+    protected synchronized TgPlayer GetPlayerById(int player_id) throws Exception {
         return this.idPlayerMap.get(player_id);
     }
 
@@ -307,7 +307,7 @@ public abstract class DataBase {//数据库的通用接口定义
                 String[] split_data = action.targetName.split(":");//分割字符串
                 String player_name = split_data[0];//玩家的名字放在第一部分
                 String player_uuid = split_data[1];//玩家的uuid放在第一部分
-                target_id = GetOrCreatePlayerMap(new TsPlayer(player_name,player_uuid));
+                target_id = GetOrCreatePlayerMap(new TgPlayer(player_name,player_uuid));
                 break;
             default://如果无法找到行为的映射则直接抛出异常
                     throw new Exception("Could not get the map of the type of the action.");
@@ -365,7 +365,7 @@ public abstract class DataBase {//数据库的通用接口定义
         ArrayList<Action> temp = new ArrayList<>();
         while (res.next())//遍历结果集
         {
-            TsPlayer player = GetPlayerById(res.getInt("player"));
+            TgPlayer player = GetPlayerById(res.getInt("player"));
             String action = GetActionById(res.getInt("action"));
             String dimension_name = GetDimensionById(res.getInt("dimension"));
             String obj_name = GetObjByActionAndId(action, res.getInt("target"));
@@ -422,7 +422,7 @@ public abstract class DataBase {//数据库的通用接口定义
 
         while (res.next())//遍历结果集
         {
-            TsPlayer player = GetPlayerById(res.getInt("player"));
+            TgPlayer player = GetPlayerById(res.getInt("player"));
             String action = GetActionById(res.getInt("action"));
             String dimension_name = GetDimensionById(res.getInt("dimension"));
             String obj_name = GetObjByActionAndId(action, res.getInt("target"));
