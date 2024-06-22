@@ -1,31 +1,45 @@
 package xyz.starrylandserver.thestarryguardforge.Event;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraft.network.chat.Component;
-import xyz.starrylandserver.thestarryguardforge.DataType.TgPlayer;
-import xyz.starrylandserver.thestarryguardforge.Operation.DataQuery;
-import xyz.starrylandserver.thestarryguardforge.TheStarryGuardForge;
+import xyz.starrylandserver.thestarryguardforge.DataType.*;
+import xyz.starrylandserver.thestarryguardforge.TgMain;
+import xyz.starrylandserver.thestarryguardforge.Tool;
+
+import java.util.HashMap;
 
 
-@Mod.EventBusSubscriber(modid = TheStarryGuardForge.MODID,bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class BlockBreakEvent {
-    DataQuery dataQuery;//查询任务
+    TgMain main;//服务的主类
 
     @SubscribeEvent
-    public synchronized void onBlockBreak(BlockEvent.BreakEvent breakEvent)
+    public void onBlockBreak(BlockEvent.BreakEvent break_event)
     {
-        Player player = breakEvent.getPlayer();
-        Block block = breakEvent.getState().getBlock();
-        String ret_msg = "you are breaking " + block.getDescriptionId();
-        TgPlayer query_player = new TgPlayer(player.getName().getString(),player.getStringUUID());
-        breakEvent.setCanceled(dataQuery.IsPlayerEnablePointQuery(query_player));
+        Player mc_player = break_event.getPlayer();//获取玩家实例
+        TgPlayer player = new TgPlayer(mc_player.getName().getString(),mc_player.getStringUUID());
+
+        BlockState block_state = break_event.getState();//获取方块状态
+        BlockPos pos = break_event.getPos();//获取事件发生的位置
+        Level world = mc_player.level();//获取发生的世界
+
+        ResourceKey<Level>dimension_key = world.dimension();
+        String dimension_str = dimension_key.location().toString();//获取维度的名字
+
+        HashMap<String,String>temp_data_slot = new HashMap<>();//临时的数据插槽
+        temp_data_slot.put("name",block_state.getBlock().getDescriptionId());
+        Target target = new Target(TargetType.BLOCK,temp_data_slot);//构造一个目标
+
+        Action action = new Action(ActionType.BLOCK_BREAK_ACTION,player,
+                pos.getX(),pos.getY(),pos.getZ(),dimension_str,target, Tool.GetCurrentTime());
+        this.main.onStorage(action);
     }
-    public BlockBreakEvent(DataQuery query)
+    public BlockBreakEvent(TgMain tg_main)
     {
-        this.dataQuery = query;
+        this.main = tg_main;
     }
 }

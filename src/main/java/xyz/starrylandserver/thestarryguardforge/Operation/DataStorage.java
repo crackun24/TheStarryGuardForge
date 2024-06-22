@@ -1,6 +1,5 @@
 package xyz.starrylandserver.thestarryguardforge.Operation;
 
-import com.mojang.datafixers.optics.Adapter;
 import xyz.starrylandserver.thestarryguardforge.Adapter.TgAdapter;
 import xyz.starrylandserver.thestarryguardforge.DataBaseStorage.DataBase;
 import xyz.starrylandserver.thestarryguardforge.DataType.Action;
@@ -27,7 +26,7 @@ public class DataStorage extends Thread {//数据储存类,同时启动线程,�
         }
     }
 
-    public synchronized void CloseThread()//关闭线程
+    public synchronized void CloseDataStorage()//关闭线程
     {
         this.isClose = true;
     }
@@ -44,6 +43,7 @@ public class DataStorage extends Thread {//数据储存类,同时启动线程,�
 
     public void run() {//数据库同步数据的线程
         try {
+            this.mAdapter.LOGGER_INFO("Connecting to database.");
             this.mDataBase.ConnectToDataBase();//连接到数据库
         } catch (Exception e) {
             this.mAdapter.LOGGER_ERROR("Could not connect to dataBase.");

@@ -5,10 +5,9 @@ import xyz.starrylandserver.thestarryguardforge.Adapter.TgAdapter;
 import xyz.starrylandserver.thestarryguardforge.DataBaseStorage.DataBase;
 import xyz.starrylandserver.thestarryguardforge.DataBaseStorage.Mysql;
 import xyz.starrylandserver.thestarryguardforge.DataBaseStorage.Sqlite;
-import xyz.starrylandserver.thestarryguardforge.DataType.QueryTask;
+import xyz.starrylandserver.thestarryguardforge.DataType.Action;
 import xyz.starrylandserver.thestarryguardforge.Operation.DataQuery;
 import xyz.starrylandserver.thestarryguardforge.Operation.DataStorage;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,7 +16,7 @@ import java.nio.file.Paths;
 
 //模组的主处理类
 public class TgMain {
-   TsConfig config;//配置对象
+   TgConfig config;//配置对象
     TgAdapter adapter;//不同加载器的适配器
     Lang lang;//语言类
     DataBase database;//数据库管理类
@@ -27,7 +26,6 @@ public class TgMain {
 
     private TgMain()//私有构造函数
     {
-
     }
 
     private void InitDatabase()//初始化数据库
@@ -43,7 +41,6 @@ public class TgMain {
             {
                 String sqlite_file_path = this.adapter.GetConfigFilePath();
                 sqlite_file_path += "/TheStarryGuard" + Sqlite.FILE_NAME;//构建存放数据库文件的路径
-                adapter.LOGGER_WARN(sqlite_file_path);//FIXME
                 this.database = Sqlite.GetSqlite(new File(sqlite_file_path));
             }
             default -> throw new RuntimeException("Could not confirm database type you need.");
@@ -54,24 +51,30 @@ public class TgMain {
 
         this.dataQuery.start();//启用查询服务
         this.dataStorage.start();//启用存储服务
-        adapter.LOGGER_INFO("database initialized.");
+
     }
 
     public void LoadLang() throws IOException {
-        Path file_path = Paths.get( this.adapter.GetLangFilePath() );
-
-        if(!Files.exists( file_path)) {//判断语言文件夹是否存在
+        Path file_path = Paths.get(this.adapter.GetLangFilePath() );
+        if(!Files.exists(file_path)) {//判断语言文件夹是否存在
             Files.createDirectories(file_path);//不存在则直接创建
         }
+        String lang = this.config.GetValue("lang");//获取使用的语言
 
-        String str_file_path =  file_path.toString() + "/" + this.config.GetValue("lang") + ".properties";
+        String str_file_path =  file_path.toString() + "/" + lang + ".properties";
+
+        if(!Files.exists(Paths.get(str_file_path)))//判断文件是否存在
+        {
+            throw new RuntimeException("Could not find the lang file.");
+        }
+
         this.lang = Lang.LoadLang(str_file_path);//加载语言文件
     }
 
     public void LoadConf() throws IOException//加载配置文件
     {
         String conf_path = FMLPaths.CONFIGDIR.get().toString();
-        this.config = TsConfig.LoadConfig(conf_path);//加载配置文件
+        this.config = TgConfig.LoadConfig(conf_path);//加载配置文件
     }
 
     public void start()//启动服务
@@ -80,9 +83,11 @@ public class TgMain {
             LoadConf();//加载配置文件
             LoadLang();//加载语言文件
             InitDatabase();//初始化数据库
+
         }catch (Exception e)
         {
            e.printStackTrace();
+           adapter.ShutDownServer();//有异常直接关闭服务器
         }
     }
 
@@ -94,6 +99,10 @@ public class TgMain {
     public synchronized DataStorage dataStorage()
     {
         return this.dataStorage;
+    }
+    public synchronized void onStorage(Action action)
+    {
+        this.dataStorage.InsertAction(action);//插入事件到队列中
     }
 
     public static TgMain getInstance(TgAdapter adapter)//获取实例

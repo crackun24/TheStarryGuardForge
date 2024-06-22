@@ -10,5 +10,5 @@ public interface TgAdapter {//不同的模组加载器的适配接口
    void LOGGER_ERROR(String string);
    void LOGGER_DEBUG(String string);
    void SendMsgToPlayer(TgPlayer player, String msg);//发送消息给玩家
-   void ShutDownService();//关闭服务
+   void ShutDownServer();//关闭服务
 }

@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.util.UUID;
 
-public class FrogeAdapter implements TgAdapter{
+public class ForgeAdapter implements TgAdapter{
     private final Logger LOGGER = LogManager.getLogger();
     @Override
     public String GetConfigFilePath() {
@@ -51,12 +51,12 @@ public class FrogeAdapter implements TgAdapter{
     }
 
     @Override
-    public void ShutDownService() {
+    public void ShutDownServer() {
         MinecraftServer serve = ServerLifecycleHooks.getCurrentServer();
         serve.close();//关闭服务
     }
 
-    public FrogeAdapter()
+    public ForgeAdapter()
     {
 
     }

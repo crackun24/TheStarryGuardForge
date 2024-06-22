@@ -1,5 +1,6 @@
 package xyz.starrylandserver.thestarryguardforge.Operation;
 
+import net.minecraftforge.common.ForgeI18n;
 import xyz.starrylandserver.thestarryguardforge.Adapter.TgAdapter;
 import xyz.starrylandserver.thestarryguardforge.DataBaseStorage.DataBase;
 import xyz.starrylandserver.thestarryguardforge.DataType.Action;
@@ -84,19 +85,20 @@ public class DataQuery extends Thread {//数据查询类
                 total_entries, total_entries == 0 ? 0 : task.pageId,
                 total_page));//发送给玩家的消息
 
-        long time = System.currentTimeMillis() / 1000;
+        long time = Tool.GetCurrentTime();
 
         int max_player_name_length = 0, max_target_name_length = 0, max_action_type_name_lenth = 0;
         for (Action action : action_list)//遍历取出最大的字符串数量
         {
-            if (action.targetName.length() > max_target_name_length) {
-                max_target_name_length = action.targetName.length();
+            String target_name = action.target.targetDataSlot.get("name");
+            if (target_name.length() > max_target_name_length) {
+                max_target_name_length = target_name.length();
             }
             if (action.player.name.length() > max_player_name_length) {
                 max_player_name_length = action.player.name.length();
             }
-            if (action.actionType.length() > max_action_type_name_lenth) {
-                max_action_type_name_lenth = action.actionType.length();
+            if (action.actionType.getDBName().length() > max_action_type_name_lenth) {
+                max_action_type_name_lenth = action.actionType.getDBName().length();
             }
         }
         max_action_type_name_lenth += 5;
@@ -106,21 +108,15 @@ public class DataQuery extends Thread {//数据查询类
         for (Action action : action_list)//遍历返回的结果集
         {
             long delta_time = time - action.time;//获取时间差
-            String target_name;
-            if (action.targetName.contains(":"))//判断是否含有分隔号:如 minecraft:stone
-            {
-                String[] item_detail = action.targetName.split(":");
-                target_name = item_detail[1];//获取名字
-            } else {
-                target_name = action.targetName;
-            }
+            String target_id = action.target.targetDataSlot.get("name");//目标的id
+            String local_target_name = ForgeI18n.getPattern(target_id);//获取本地化的名字
 
             String entry = String.format("%-" + max_player_name_length +"s%-" + max_action_type_name_lenth + "s%-"
-                            + max_target_name_length + "s%-6.10s\n", action.player.name, action.actionType, target_name,
+                            + max_target_name_length + "s%-6.10s\n", action.player.name, action.actionType, local_target_name,
                     Tool.GetDateLengthDes(delta_time));
             msg_to_send.append(entry);
         }
-        msg_to_send.append("\n\n§8使用 §2/tg page 页数 §8即可翻页.");
+        msg_to_send.append(this.mLang.getVal("ret_msg_foot"));
         this.mPlayerLastTask.put(task.player, task);//放入玩家与上一个任务的映射中
 
         this.adapter.SendMsgToPlayer(task.player, msg_to_send.toString());//默认发送第一页的内容

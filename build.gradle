@@ -84,11 +84,17 @@ repositories {
     // flatDir {
     //     dir 'libs'
     // }
+    maven {
+        name = 'LuckPerms'
+        url = 'https://repo.lucko.me'
+    }
 }
 
 dependencies {
     implementation 'mysql:mysql-connector-java:8.0.28'
     implementation 'org.xerial:sqlite-jdbc:3.34.0'
+
+    implementation fg.deobf("net.luckperms:api:5.4")
 
     jarJar(group: 'org.xerial', name: 'sqlite-jdbc', version: '[3.34.0]')
     jarJar(group: 'mysql', name: 'mysql-connector-java', version: '[8.0.28]')

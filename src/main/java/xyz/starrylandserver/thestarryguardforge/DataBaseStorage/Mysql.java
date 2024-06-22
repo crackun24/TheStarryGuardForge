@@ -1,11 +1,11 @@
 package xyz.starrylandserver.thestarryguardforge.DataBaseStorage;
 import xyz.starrylandserver.thestarryguardforge.DataType.Tables;
-import xyz.starrylandserver.thestarryguardforge.TsConfig;
+import xyz.starrylandserver.thestarryguardforge.TgConfig;
 
 import java.sql.*;
 
 public class Mysql extends DataBase {
-    TsConfig config;
+    TgConfig config;
     private void ConnectToDb() throws SQLException//连接到数据库
     {
         String url = String.format("jdbc:mysql://%s:%s/%s",
@@ -25,7 +25,7 @@ public class Mysql extends DataBase {
         }
     }
 
-    static public Mysql GetMysql(TsConfig config)//mysql的工厂方法
+    static public Mysql GetMysql(TgConfig config)//mysql的工厂方法
     {
         Mysql mysql = new Mysql();
         mysql.config = config;

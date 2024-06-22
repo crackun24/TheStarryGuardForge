@@ -4,7 +4,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
-public class TsConfig {//配置文件类
+public class TgConfig {//配置文件类
     static final String CONFIG_FILE_NAME = "TheStarryGuard/TheStarryGuard.properties";//配置文件的名称
     static final String DEFAULT_CONFIG_DATA = """
                         #data base type can be sqlite、 mysql
@@ -24,9 +24,10 @@ public class TsConfig {//配置文件类
 
                         query_op_only = true
                         rollback_op_only = true
+                        lang = zh_cn
                         """;//默认的配置文件信息
     private Properties prop;//properties的配置文件读取对象
-    private TsConfig() {//构造函数
+    private TgConfig() {//构造函数
     }
 
     private static void CreateDefaultConfigFile(final File file) throws IOException//创建默认的配置文件
@@ -37,9 +38,9 @@ public class TsConfig {//配置文件类
         writer.close();//关闭输出流
     }
 
-    static public TsConfig LoadConfig(String file_path) throws IOException//加载配置文件
+    static public TgConfig LoadConfig(String file_path) throws IOException//加载配置文件
     {
-        TsConfig temp_obj = new TsConfig();//配置文件对象
+        TgConfig temp_obj = new TgConfig();//配置文件对象
         File config_folder = new File(file_path + "/TheStarryGuard");//文件夹的路径
 
 

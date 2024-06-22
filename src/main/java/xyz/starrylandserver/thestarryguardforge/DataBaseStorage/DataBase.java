@@ -1,16 +1,12 @@
 package xyz.starrylandserver.thestarryguardforge.DataBaseStorage;
 
 
-import xyz.starrylandserver.thestarryguardforge.DataType.Action;
-import xyz.starrylandserver.thestarryguardforge.DataType.TgPlayer;
-import xyz.starrylandserver.thestarryguardforge.DataType.QueryTask;
-import xyz.starrylandserver.thestarryguardforge.DataType.Tables;
+import xyz.starrylandserver.thestarryguardforge.DataType.*;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static xyz.starrylandserver.thestarryguardforge.DataType.Action.*;
 
 
 public abstract class DataBase {//数据库的通用接口定义
@@ -47,6 +43,7 @@ public abstract class DataBase {//数据库的通用接口定义
     protected HashMap<Integer, String> idEntityMap = new HashMap<>();//实体的id和实体的名字的映射
     protected HashMap<Integer, String> idDimensionMap = new HashMap<>();//维度ID和维度的映射
     protected HashMap<Integer, String> idItemMap = new HashMap<>();//物品id和物品名称的映射
+
 
     protected synchronized void FlushPlayerMap() throws Exception {
         VerifyConnection();
@@ -95,7 +92,6 @@ public abstract class DataBase {//数据库的通用接口定义
     }
 
     protected synchronized void FlushItemMap() throws Exception {
-
         VerifyConnection();
         String query_str = String.format("SELECT * FROM %s;", ITEM_MAP_TABLE_NAME);//构建查询语句
         Statement stmt = this.mConn.createStatement();//创建查询
@@ -119,7 +115,6 @@ public abstract class DataBase {//数据库的通用接口定义
     }
 
     protected synchronized void FlushDimensionMap() throws Exception {
-
         VerifyConnection();
         String query_str = String.format("SELECT * FROM %s;", DIMENSION_MAP_TABLE_NAME);//构建查询语句
         Statement stmt = this.mConn.createStatement();//创建查询
@@ -200,7 +195,6 @@ public abstract class DataBase {//数据库的通用接口定义
     }
 
     protected synchronized int GetOrCreatePlayerMap(TgPlayer player) throws Exception {
-
         if (!this.playerIdMap.containsKey(player))//表中没有这个数据
         {
             int id = this.playerIdMap.size() + 1;//计算出新的对照的id
@@ -273,15 +267,33 @@ public abstract class DataBase {//数据库的通用接口定义
 
     protected abstract void CheckAndFixDataBaseStructure() throws Exception;//检查数据库的表的结构,如果表不符合要求,则修复表
 
-    protected synchronized String GetObjByActionAndId(String action, int obj_id) throws Exception {
-        switch (action)//判断是哪一种类型
+    protected synchronized Target GetTargetByActionAndId(String str_action, int obj_id) throws Exception {
+
+        ActionType action = ActionType.fromString(str_action);
+        TargetType target_type = action.getTargetType();//获取行为的类型
+
+        HashMap<String,String>temp_target_slot = new HashMap<>();//目标的数据插槽
+        switch (target_type)//判断是哪一种类型
         {
-            case BLOCK_PLACE, BLOCK_BREAK_ACTION,FIRE_BLOCK,TNT_USE,BUKKIT_USE,CHEST_USE:
-                return GetItemById(obj_id);
-            case ATTACK_ACTION, KILL_ENTITY_ACTION:
-                return GetEntityById(obj_id);
-            case KILL_PLAYER_ACTION://如果是玩家事件的话获取玩家的名字
-                return GetPlayerById(obj_id).name;
+            case BLOCK:
+            {
+                String name = GetItemById(obj_id);
+                temp_target_slot.put("name",name);
+                return new Target(TargetType.BLOCK,temp_target_slot);
+            }
+            case ENTITY:
+            {
+                String name = GetEntityById(obj_id);
+                temp_target_slot.put("name",name);
+                return new Target(TargetType.ENTITY,temp_target_slot);
+            }
+            case PLAYER://如果是玩家事件的话获取玩家的名字
+            {
+                TgPlayer player = GetPlayerById(obj_id);
+                temp_target_slot.put("name",player.name);
+                temp_target_slot.put("uuid",player.UUID);
+                return new Target(TargetType.PLAYER,temp_target_slot);
+            }
             default:
                 throw new RuntimeException("Could not find the action.");
         }
@@ -290,23 +302,21 @@ public abstract class DataBase {//数据库的通用接口定义
     public synchronized void WriteActionToDb(Action action) throws Exception {//将玩家的行为写入数据库
 
         VerifyConnection();
-        int action_id = GetOrCreateActionMap(action.actionType);//获取玩家的行为的ID
+        int action_id = GetOrCreateActionMap(action.actionType.getDBName());//获取玩家的行为的ID
         int target_id;//目标的id(玩家放置的方块ID,玩家攻击的实体id等)
         int player_id = GetOrCreatePlayerMap(action.player);//
         int dimension_id = GetOrCreateDimensionMap(action.dimension);
 
-        switch (action.actionType) {//判断玩家的行为的类型
-            case BLOCK_BREAK_ACTION, BLOCK_PLACE,FIRE_BLOCK,TNT_USE,BUKKIT_USE,CHEST_USE://方块破坏事件或者方块使用事件则直接获取方块的id
-                target_id = GetOrCreateItemMap(action.targetName);//获取方块的id
+        switch (action.target.targetType) {//判断玩家的行为的类型
+            case BLOCK:
+                target_id = GetOrCreateItemMap(action.target.targetDataSlot.get("name"));//获取方块的id
                 break;
-            //获取方块id
-            case ATTACK_ACTION ,KILL_ENTITY_ACTION://实体攻击事件
-                    target_id = GetOrCreateEntityMap(action.targetName);//获取实体ID
+            case ENTITY:
+                    target_id = GetOrCreateEntityMap(action.target.targetDataSlot.get("name"));//获取实体ID
                 break;
-            case KILL_PLAYER_ACTION:
-                String[] split_data = action.targetName.split(":");//分割字符串
-                String player_name = split_data[0];//玩家的名字放在第一部分
-                String player_uuid = split_data[1];//玩家的uuid放在第一部分
+            case PLAYER:
+                String player_name = action.target.targetDataSlot.get("name");//获取玩家的名字
+                String player_uuid = action.target.targetDataSlot.get("uuid");//玩家的uuid放在第一部分
                 target_id = GetOrCreatePlayerMap(new TgPlayer(player_name,player_uuid));
                 break;
             default://如果无法找到行为的映射则直接抛出异常
@@ -366,13 +376,15 @@ public abstract class DataBase {//数据库的通用接口定义
         while (res.next())//遍历结果集
         {
             TgPlayer player = GetPlayerById(res.getInt("player"));
-            String action = GetActionById(res.getInt("action"));
+            String str_action = GetActionById(res.getInt("action"));
             String dimension_name = GetDimensionById(res.getInt("dimension"));
-            String obj_name = GetObjByActionAndId(action, res.getInt("target"));
+            Target target = GetTargetByActionAndId(str_action, res.getInt("target"));
 
-            Action action_temp = new Action(action, player, obj_name,
-                    res.getInt("x"), res.getInt("y"), res.getInt("z"), dimension_name, res.getString("data"));
-            action_temp.time = res.getLong("time");
+            ActionType action_type = ActionType.fromString(str_action);//获取目标的类型
+
+            Action action_temp = new Action(action_type, player, res.getInt("x"),
+                    res.getInt("y"), res.getInt("z"),
+                    dimension_name,target,res.getLong("time"));//构造一个action对象
             temp.add(action_temp);
         }
         return temp;//返回结果
@@ -423,13 +435,15 @@ public abstract class DataBase {//数据库的通用接口定义
         while (res.next())//遍历结果集
         {
             TgPlayer player = GetPlayerById(res.getInt("player"));
-            String action = GetActionById(res.getInt("action"));
+            String str_action = GetActionById(res.getInt("action"));
             String dimension_name = GetDimensionById(res.getInt("dimension"));
-            String obj_name = GetObjByActionAndId(action, res.getInt("target"));
 
-            Action action_temp = new Action(action, player, obj_name,
-                    res.getInt("x"), res.getInt("y"), res.getInt("z"), dimension_name, res.getString("data"));
-            action_temp.time = res.getLong("time");
+            Target target = GetTargetByActionAndId(str_action, res.getInt("target"));//获取目标对象
+            ActionType action_type = ActionType.fromString(str_action);
+
+            Action action_temp = new Action(action_type, player, res.getInt("x"), res.getInt("y"),
+                    res.getInt("z"), dimension_name,target,res.getLong("time"));
+
             temp.add(action_temp);
         }
         return temp;//返回结果

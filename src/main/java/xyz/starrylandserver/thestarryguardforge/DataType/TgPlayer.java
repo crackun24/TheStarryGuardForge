@@ -22,7 +22,7 @@ public class TgPlayer {//玩家类
 
 
     public TgPlayer(String name, String uuid) {//构造函数
-        this.UUID = uuid;
         this.name = name;
+        this.UUID = uuid;
     }
 }

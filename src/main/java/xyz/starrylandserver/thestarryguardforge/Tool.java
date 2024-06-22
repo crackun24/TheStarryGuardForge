@@ -32,4 +32,8 @@ public class Tool {//提供静态函数的工具类
 
         return String.format("%.1f",date) + "sec";
     }
+    public static long GetCurrentTime()
+    {
+        return System.currentTimeMillis()/1000;
+    }
 }
