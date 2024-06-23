@@ -8,7 +8,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import xyz.starrylandserver.thestarryguardforge.DataType.*;
 import xyz.starrylandserver.thestarryguardforge.TgMain;
 import xyz.starrylandserver.thestarryguardforge.Tool;
-
 import java.util.HashMap;
 
 public class KillEntityEvent {
