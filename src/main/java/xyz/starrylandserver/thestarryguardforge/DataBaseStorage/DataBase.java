@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-
 public abstract class DataBase {//数据库的通用接口定义
     protected Connection mConn;//数据库连接对象
     protected static final String DIMENSION_MAP_TABLE_NAME = "tg_dimension_map";
@@ -31,6 +30,7 @@ public abstract class DataBase {//数据库的通用接口定义
     protected PreparedStatement Query_area_action_count;//查询区域的行为的数量
 
     public enum DataBaseStorageType {MYSQL, SQL_LITE}//数据的储存使用的数据库类型
+
     protected HashMap<TgPlayer, Integer> playerIdMap = new HashMap<>();//玩家对象和ID的映射
     protected HashMap<String, Integer> actionIdMap = new HashMap<>();//玩家行为和ID的映射
     protected HashMap<String, Integer> entityIdMap = new HashMap<>();//实体的名字和ID的映射
@@ -165,7 +165,7 @@ public abstract class DataBase {//数据库的通用接口定义
         if (!this.actionIdMap.containsKey(action))//表中没有这个数据
         {
             int id = this.actionIdMap.size() + 1;//计算出新的对照的id
-            this.insert_action_map =this.mConn.prepareStatement(Tables.INSERT_ACTION_MAP_STR);
+            this.insert_action_map = this.mConn.prepareStatement(Tables.INSERT_ACTION_MAP_STR);
             this.insert_action_map.setString(1, action);  // 设置 action 参数值
             this.insert_action_map.setInt(2, id);             // 设置 id 参数值
             this.insert_action_map.execute();//执行更新
@@ -272,27 +272,25 @@ public abstract class DataBase {//数据库的通用接口定义
         ActionType action = ActionType.fromString(str_action);
         TargetType target_type = action.getTargetType();//获取行为的类型
 
-        HashMap<String,String>temp_target_slot = new HashMap<>();//目标的数据插槽
+        HashMap<String, String> temp_target_slot = new HashMap<>();//目标的数据插槽
         switch (target_type)//判断是哪一种类型
         {
-            case BLOCK:
-            {
+            case BLOCK: {
                 String name = GetItemById(obj_id);
-                temp_target_slot.put("name",name);
-                return new Target(TargetType.BLOCK,temp_target_slot);
+                temp_target_slot.put("name", name);
+                return new Target(TargetType.BLOCK, temp_target_slot);
             }
-            case ENTITY:
-            {
+            case ENTITY: {
                 String name = GetEntityById(obj_id);
-                temp_target_slot.put("name",name);
-                return new Target(TargetType.ENTITY,temp_target_slot);
+                temp_target_slot.put("name", name);
+                return new Target(TargetType.ENTITY, temp_target_slot);
             }
             case PLAYER://如果是玩家事件的话获取玩家的名字
             {
                 TgPlayer player = GetPlayerById(obj_id);
-                temp_target_slot.put("name",player.name);
-                temp_target_slot.put("uuid",player.UUID);
-                return new Target(TargetType.PLAYER,temp_target_slot);
+                temp_target_slot.put("name", player.name);
+                temp_target_slot.put("uuid", player.UUID);
+                return new Target(TargetType.PLAYER, temp_target_slot);
             }
             default:
                 throw new RuntimeException("Could not find the action.");
@@ -312,15 +310,15 @@ public abstract class DataBase {//数据库的通用接口定义
                 target_id = GetOrCreateItemMap(action.target.targetDataSlot.get("name"));//获取方块的id
                 break;
             case ENTITY:
-                    target_id = GetOrCreateEntityMap(action.target.targetDataSlot.get("name"));//获取实体ID
+                target_id = GetOrCreateEntityMap(action.target.targetDataSlot.get("name"));//获取实体ID
                 break;
             case PLAYER:
                 String player_name = action.target.targetDataSlot.get("name");//获取玩家的名字
                 String player_uuid = action.target.targetDataSlot.get("uuid");//玩家的uuid放在第一部分
-                target_id = GetOrCreatePlayerMap(new TgPlayer(player_name,player_uuid));
+                target_id = GetOrCreatePlayerMap(new TgPlayer(player_name, player_uuid));
                 break;
             default://如果无法找到行为的映射则直接抛出异常
-                    throw new Exception("Could not get the map of the type of the action.");
+                throw new Exception("Could not get the map of the type of the action.");
         }
 
         this.insert_action = this.mConn.prepareStatement(Tables.INSERT_ACTION_STR);
@@ -384,7 +382,7 @@ public abstract class DataBase {//数据库的通用接口定义
 
             Action action_temp = new Action(action_type, player, res.getInt("x"),
                     res.getInt("y"), res.getInt("z"),
-                    dimension_name,target,res.getLong("time"));//构造一个action对象
+                    dimension_name, target, res.getLong("time"));//构造一个action对象
             temp.add(action_temp);
         }
         return temp;//返回结果
@@ -442,13 +440,15 @@ public abstract class DataBase {//数据库的通用接口定义
             ActionType action_type = ActionType.fromString(str_action);
 
             Action action_temp = new Action(action_type, player, res.getInt("x"), res.getInt("y"),
-                    res.getInt("z"), dimension_name,target,res.getLong("time"));
+                    res.getInt("z"), dimension_name, target, res.getLong("time"));
 
             temp.add(action_temp);
         }
         return temp;//返回结果
     }
+
     protected abstract void VerifyConnection() throws Exception;//校验数据库的连接
+
     public abstract void ConnectToDataBase() throws Exception;//连接到数据库
 
 }

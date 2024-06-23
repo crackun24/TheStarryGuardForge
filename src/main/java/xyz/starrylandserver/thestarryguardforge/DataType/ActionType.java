@@ -2,16 +2,16 @@ package xyz.starrylandserver.thestarryguardforge.DataType;
 
 public enum ActionType {
 
-    ATTACK_ENTITY_ACTION("attack_entity"),
-    ATTACK_PLAYER_ACTION("attack_player"),
-    FIRE_BLOCK_ACTION("fire_block"),
-    BLOCK_PLACE_ACTION("block_place"),
-    BLOCK_BREAK_ACTION("block_break"),
+    ATTACK_ENTITY_ACTION("attack_entity"),//done
+    ATTACK_PLAYER_ACTION("attack_player"),//done
+    FIRE_BLOCK_ACTION("fire_block"),//done
+    BLOCK_PLACE_ACTION("block_place"),//done
+    BLOCK_BREAK_ACTION("block_break"),//done
     KILL_ENTITY_ACTION("kill_entity"),
     KILL_PLAYER_ACTION("kill_player"),
     BUKKIT_USE_ACTION("bukkit_use"),
     CONTAINER_CHANGE_ACTION("container_change"),
-    RIGHT_CLICK_BLOCK_ACTION("right_click_block");
+    RIGHT_CLICK_BLOCK_ACTION("right_click_block");//done
 
     String strType;
 

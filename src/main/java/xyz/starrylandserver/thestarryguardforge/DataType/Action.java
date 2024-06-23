@@ -13,7 +13,7 @@ public class Action {//玩家的行为类
 //    public static final String CONTAINER_CHANGE_ACTION = "container_change";//和容器的交互事件
 //    public static final String RIGHT_CLICK_BLOCK_ACTION = "right_click_block";//右键方块的事件
 
-    public TgPlayer player;
+    public TgPlayer player;//触发这个事件的玩家
     public int posX;
     public int posY;
     public int posZ;

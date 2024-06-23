@@ -1,5 +1,6 @@
 package xyz.starrylandserver.thestarryguardforge.Command;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
@@ -8,20 +9,16 @@ import net.luckperms.api.model.user.UserManager;
 import net.luckperms.api.query.QueryOptions;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.entity.player.Player;
-import xyz.starrylandserver.thestarryguardforge.Adapter.TgAdapter;
 import xyz.starrylandserver.thestarryguardforge.DataType.TgPlayer;
-import xyz.starrylandserver.thestarryguardforge.Lang;
 import xyz.starrylandserver.thestarryguardforge.Operation.DataQuery;
 import xyz.starrylandserver.thestarryguardforge.TgMain;
 
 import java.util.UUID;
 
-public class QueryPoint {
-    DataQuery query;
-    TgAdapter adapter;
+public class QueryPage {
     TgMain main;
-    Lang lang;
-    String PERMISSION_NODE = "thestarryguard.query.querypoint";
+    DataQuery dataQuery;
+    String PERMISSION_NODE = "thestarryguard.query.querypage";
 
     public boolean hasPermission(Player player) {//是否有权限
         if (player.hasPermissions(4))//判断玩家是否有op权限
@@ -42,34 +39,32 @@ public class QueryPoint {
 
     }
 
+
     public int onCommandExec(CommandContext<CommandSourceStack> dispatcher) {
+
+        int page = IntegerArgumentType.getInteger(dispatcher, "page");
+
         Player mc_player = dispatcher.getSource().getPlayer();
-        if (mc_player == null) {
+
+        if (mc_player == null)//判断获取的对象是否合法
+        {
             return 1;
         }
 
         TgPlayer player = new TgPlayer(mc_player.getName().getString(), mc_player.getStringUUID());
 
         if (!hasPermission(mc_player)) {
-            adapter.SendMsgToPlayer(player,this.main.getLang().getVal("no_permission"));
+            this.main.getAdapter().SendMsgToPlayer(player,this.main.getLang().getVal("no_permission"));
             return 1;
         }
 
-        if (query.IsPlayerEnablePointQuery(player))//如果玩家启用了点查询
-        {
-            query.DisablePlayerPointQuery(player);//关闭点查询
-            this.adapter.SendMsgToPlayer(player, this.lang.getVal("point_query_disable"));
-        } else {
-            query.EnablePlayerPointQuery(player);//启用点查询
-            this.adapter.SendMsgToPlayer(player, this.lang.getVal("point_query_enable"));
-        }
+        dataQuery.AddPageQuery(player, page);
         return 1;
     }
 
-    public QueryPoint(TgMain main) {
+
+    public QueryPage(TgMain main) {
         this.main = main;
-        this.query = main.getDataQuery();
-        this.adapter = main.getAdapter();
-        this.lang = main.getLang();
+        this.dataQuery = main.getDataQuery();
     }
 }

@@ -25,10 +25,8 @@ public class BlockBreakEvent {
         TgPlayer player = new TgPlayer(mc_player.getName().getString(), mc_player.getStringUUID());
         BlockState block_state = break_event.getState();//获取方块状态
         BlockPos pos = break_event.getPos();//获取事件发生的位置
-        Level world = mc_player.level();//获取发生的世界
 
-        ResourceKey<Level> dimension_key = world.dimension();
-        String dimension_str = dimension_key.location().toString();//获取维度的名字
+        String dimension_str = mc_player.level().dimension().location().toString();//获取维度的名字
 
         if (this.dataQuery.IsPlayerEnablePointQuery(player))//判断玩家是否启用了点查询
         {

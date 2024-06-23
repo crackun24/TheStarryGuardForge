@@ -8,6 +8,7 @@ public class Lang {//语言文件类
     private Properties prop;
     private String langFilePath;//语言文件的路径
     private final String DEFAULT_LANG_FILE = "initializing_database = 初始化数据库\n" +
+            "no_permission = 你没有权限操作\n" +
             "database_connected = 数据库的连接\n" +
             "illegal_page = 不合法的页数\n" +
             "no_data = 没有数据\n" +
