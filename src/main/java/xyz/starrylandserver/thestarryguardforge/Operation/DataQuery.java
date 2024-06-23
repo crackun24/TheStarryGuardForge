@@ -1,10 +1,13 @@
 package xyz.starrylandserver.thestarryguardforge.Operation;
 
+import net.minecraft.client.resources.language.I18n;
 import net.minecraftforge.common.ForgeI18n;
 import xyz.starrylandserver.thestarryguardforge.Adapter.TgAdapter;
 import xyz.starrylandserver.thestarryguardforge.DataBaseStorage.DataBase;
 import xyz.starrylandserver.thestarryguardforge.DataType.Action;
 import xyz.starrylandserver.thestarryguardforge.DataType.QueryTask;
+import xyz.starrylandserver.thestarryguardforge.DataType.SendMsg.SendMsg;
+import xyz.starrylandserver.thestarryguardforge.DataType.SendMsg.SendMsgType;
 import xyz.starrylandserver.thestarryguardforge.DataType.TgPlayer;
 import xyz.starrylandserver.thestarryguardforge.Lang;
 import xyz.starrylandserver.thestarryguardforge.Tool;
@@ -32,6 +35,7 @@ public class DataQuery extends Thread {//数据查询类
         {
             return;
         }
+
         QueryTask task = this.mQueryTask.poll();//弹出位于第一个的任务
         ArrayList<Action> action_list;//玩家的行为列表
         int total_page;//总共的页数
@@ -41,7 +45,6 @@ public class DataQuery extends Thread {//数据查询类
             this.adapter.SendMsgToPlayer(task.player, this.mLang.getVal("illegal_page"));//发送错误消息给玩家
             return;
         }
-
 
         switch (task.queryType)//判断查询的类型
         {
@@ -81,45 +84,40 @@ public class DataQuery extends Thread {//数据查询类
                 throw new IllegalStateException("Unexpected value: " + task.queryType);
         }
 
-        StringBuilder msg_to_send = new StringBuilder(String.format(this.mLang.getVal("ret_msg_tittle"),
+        List<SendMsg> send_msg_chain = new ArrayList<>();//要发送的消息
+
+        String tittle = String.format(this.mLang.getVal("ret_msg_tittle"),
                 total_entries, total_entries == 0 ? 0 : task.pageId,
-                total_page));//发送给玩家的消息
+                total_page);//发送给玩家的消息
+
+        SendMsg tittle_msg = new SendMsg(tittle, SendMsgType.PLAIN);
+        send_msg_chain.add(tittle_msg);
 
         long time = Tool.GetCurrentTime();
-
-        int max_player_name_length = 0, max_target_name_length = 0, max_action_type_name_lenth = 0;
-        for (Action action : action_list)//遍历取出最大的字符串数量
-        {
-            String target_name = action.target.targetDataSlot.get("name");
-            if (target_name.length() > max_target_name_length) {
-                max_target_name_length = target_name.length();
-            }
-            if (action.player.name.length() > max_player_name_length) {
-                max_player_name_length = action.player.name.length();
-            }
-            if (action.actionType.getDBName().length() > max_action_type_name_lenth) {
-                max_action_type_name_lenth = action.actionType.getDBName().length();
-            }
-        }
-        max_action_type_name_lenth += 5;
-        max_player_name_length += 5;
-        max_target_name_length += 5;
 
         for (Action action : action_list)//遍历返回的结果集
         {
             long delta_time = time - action.time;//获取时间差
+            String time_msg = Tool.GetDateLengthDes(delta_time) + " ago";
+
             String target_id = action.target.targetDataSlot.get("name");//目标的id
-            String local_target_name = ForgeI18n.getPattern(target_id);//获取本地化的名字
 
-            String entry = String.format("%-" + max_player_name_length +"s%-" + max_action_type_name_lenth + "s%-"
-                            + max_target_name_length + "s%-6.10s\n", action.player.name, action.actionType, local_target_name,
-                    Tool.GetDateLengthDes(delta_time));
-            msg_to_send.append(entry);
+            String entry = String.format("%-25s %-25s %-25s", action.player.name,time_msg,action.actionType.getDBName());
+
+            SendMsg sendMsg = new SendMsg(entry,SendMsgType.PLAIN);
+            SendMsg sendMsg_target = new SendMsg(target_id,SendMsgType.TRANSLATE_KEY);
+            SendMsg sendMsg_endline = new SendMsg("\n",SendMsgType.PLAIN);
+
+            send_msg_chain.add(sendMsg);
+            send_msg_chain.add(sendMsg_target);
+            send_msg_chain.add(sendMsg_endline);
         }
-        msg_to_send.append(this.mLang.getVal("ret_msg_foot"));
-        this.mPlayerLastTask.put(task.player, task);//放入玩家与上一个任务的映射中
 
-        this.adapter.SendMsgToPlayer(task.player, msg_to_send.toString());//默认发送第一页的内容
+        SendMsg foot = new SendMsg(this.mLang.getVal("ret_msg_foot"), SendMsgType.TRANSLATE_KEY);
+        send_msg_chain.add(foot);
+
+        this.mPlayerLastTask.put(task.player, task);//放入玩家与上一个任务的映射中
+        this.adapter.SendMsgWithTransToPlayer(task.player, send_msg_chain);//默认发送第一页的内容
     }
 
     private Boolean GetCloseState()//获取关闭状态
@@ -172,7 +170,7 @@ public class DataQuery extends Thread {//数据查询类
         this.mCloseState = true;//设置关闭状态成立
     }
 
-    public synchronized void AddPageQuery(TgPlayer player, int page)//有页数的查询
+    public synchronized void AddPageQuery(TgPlayer player, int page)//有页数的查询 用于 tg p 页数,之前一定有查询过
     {
         if (!this.mPlayerLastTask.containsKey(player)) //判断是否有这个玩家的上一次请求
         {
@@ -185,7 +183,7 @@ public class DataQuery extends Thread {//数据查询类
         this.mQueryTask.add(task);//将改写后的任务添加进队列中
     }
 
-    static public DataQuery GetDataQuery(DataBase data_base,TgAdapter adapter,Lang lang) {//创建一个data_query对象
+    static public DataQuery GetDataQuery(DataBase data_base, TgAdapter adapter, Lang lang) {//创建一个data_query对象
         DataQuery temp = new DataQuery();
         temp.mDataBase = data_base;//设置使用的数据库
         temp.mPointQueryPlayer = new HashMap<>();//初始化哈希表

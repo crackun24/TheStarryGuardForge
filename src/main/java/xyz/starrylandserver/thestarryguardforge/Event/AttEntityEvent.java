@@ -1,6 +1,7 @@
 package xyz.starrylandserver.thestarryguardforge.Event;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -17,10 +18,13 @@ public class AttEntityEvent {
     public void onAttackEntity(AttackEntityEvent event)
     {
         Player mc_player = event.getEntity();
-        BlockPos pos = event.getTarget().getOnPos();//获取位置
+        Entity be_attacked_entity = event.getTarget();
+        BlockPos pos = be_attacked_entity.getOnPos();//获取位置
+
         ActionType action_type;//行为的类型
         TargetType target_type;//目标的类型
         HashMap<String,String>temp_target_data_slot = new HashMap<>();
+
         TgPlayer player = new TgPlayer(mc_player.getName().getString(),mc_player.getStringUUID());
         String dimension_name = event.getTarget().level().dimension().toString();
 
@@ -29,13 +33,16 @@ public class AttEntityEvent {
             System.out.println("attack player.");
             action_type = ActionType.ATTACK_PLAYER_ACTION;
             target_type = TargetType.PLAYER;
-            temp_target_data_slot.put("name",event.getTarget().getType().getDescriptionId());
+
+            Player be_attacked_player = (Player) be_attacked_entity;//将攻击的实体转换为玩家类型
+
+            temp_target_data_slot.put("name",be_attacked_player.getName().getString());
+            temp_target_data_slot.put("uuid",be_attacked_player.getStringUUID());
         }else{
             System.out.println("attack entity.");
             action_type = ActionType.ATTACK_ENTITY_ACTION;
             target_type = TargetType.ENTITY;
-            temp_target_data_slot.put("name",mc_player.getName().getString());
-            temp_target_data_slot.put("uuid",mc_player.getStringUUID());
+            temp_target_data_slot.put("name",be_attacked_entity.getType().getDescriptionId());
         }
 
         Target target = new Target(target_type,temp_target_data_slot);

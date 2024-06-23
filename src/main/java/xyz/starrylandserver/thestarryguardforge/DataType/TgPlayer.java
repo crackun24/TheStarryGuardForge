@@ -6,6 +6,7 @@ public class TgPlayer {//玩家类
 
     @Override
     public int hashCode() {
+
         return this.UUID.hashCode();//使用uuid作为哈希值计算对象
     }
 

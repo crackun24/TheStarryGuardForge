@@ -7,12 +7,14 @@ import java.util.Properties;
 public class Lang {//语言文件类
     private Properties prop;
     private String langFilePath;//语言文件的路径
-    private String DEFAULT_LANG_FILE = "initializing_database = 初始化数据库\n" +
-            "database_connected = 连接到数据库成功\n" +
+    private final String DEFAULT_LANG_FILE = "initializing_database = 初始化数据库\n" +
+            "database_connected = 数据库的连接\n" +
             "illegal_page = 不合法的页数\n" +
             "no_data = 没有数据\n" +
+            "point_query_enable = 已启用方块查询\n" +
+            "point_query_disable = 已关闭方块查询\n" +
             "ret_msg_tittle = §8---§4TheStarryGuard查询结果§8----§1共§3%s§1条记录§8----§1第 §3%s§8/§3%s §1页§8-----§f\n" +
-            "ret_msg_foot = §8使用 §2/tg page 页数 §8即可翻页.";//默认的配置文件
+            "ret_msg_foot  = 使用/tg page<页数>可以查询指定的页数.";
 
     private Lang() {
     }

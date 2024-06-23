@@ -11,6 +11,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 import xyz.starrylandserver.thestarryguardforge.Adapter.ForgeAdapter;
+import xyz.starrylandserver.thestarryguardforge.Command.CmdMain;
+import xyz.starrylandserver.thestarryguardforge.Command.QueryNear;
 import xyz.starrylandserver.thestarryguardforge.Event.AttEntityEvent;
 import xyz.starrylandserver.thestarryguardforge.Event.BlockBreakEvent;
 import xyz.starrylandserver.thestarryguardforge.Event.RightClickEvent;
@@ -31,11 +33,11 @@ public class TheStarryGuardForge {
         MinecraftForge.EVENT_BUS.register(new BlockBreakEvent(serviceMain));//注册方块破坏事件
         MinecraftForge.EVENT_BUS.register(new RightClickEvent(serviceMain));//注册右键方块的事件
         MinecraftForge.EVENT_BUS.register(new AttEntityEvent(serviceMain));//注册右键方块的事件
+        MinecraftForge.EVENT_BUS.register(new CmdMain(this.serviceMain));//注册右键方块的事件
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    private void setup(FMLCommonSetupEvent event)
-    {
+    private void setup(FMLCommonSetupEvent event) {
         this.adapter = new ForgeAdapter();//创建一个适配器
         serviceMain = TgMain.getInstance(adapter);
         serviceMain.start();//启动主服务
@@ -50,7 +52,7 @@ public class TheStarryGuardForge {
     public void onServerClose(ServerStoppedEvent event)//服务器关闭的事件
     {
         System.out.println("closing");//FIXME
-       this.serviceMain.dataStorage.CloseDataStorage();
-       this.serviceMain.dataQuery.CloseDataQuery();
+        this.serviceMain.dataStorage.CloseDataStorage();
+        this.serviceMain.dataQuery.CloseDataQuery();
     }
 }

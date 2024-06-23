@@ -3,7 +3,7 @@ package xyz.starrylandserver.thestarryguardforge.DataType;
 public enum TargetType {
     PLAYER("player"),ENTITY("entity"),BLOCK("block");
 
-    private String targetName;
+    private final String targetName;
 
     public String getDisplayName()
     {
