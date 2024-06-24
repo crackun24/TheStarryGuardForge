@@ -5,6 +5,7 @@ import net.minecraftforge.common.ForgeI18n;
 import xyz.starrylandserver.thestarryguardforge.Adapter.TgAdapter;
 import xyz.starrylandserver.thestarryguardforge.DataBaseStorage.DataBase;
 import xyz.starrylandserver.thestarryguardforge.DataType.Action;
+import xyz.starrylandserver.thestarryguardforge.DataType.ActionType;
 import xyz.starrylandserver.thestarryguardforge.DataType.QueryTask;
 import xyz.starrylandserver.thestarryguardforge.DataType.SendMsg.SendMsg;
 import xyz.starrylandserver.thestarryguardforge.DataType.SendMsg.SendMsgType;
@@ -86,7 +87,7 @@ public class DataQuery extends Thread {//数据查询类
 
         List<SendMsg> send_msg_chain = new ArrayList<>();//要发送的消息
 
-        String tittle = String.format(this.mLang.getVal("ret_msg_tittle"),
+        String tittle = String.format(this.mLang.getVal("ret_msg_tittle") + "\n",
                 total_entries, total_entries == 0 ? 0 : task.pageId,
                 total_page);//发送给玩家的消息
 
@@ -102,11 +103,11 @@ public class DataQuery extends Thread {//数据查询类
 
             String target_id = action.target.targetDataSlot.get("name");//目标的id
 
-            String entry = String.format("%-25s %-25s %-25s", action.player.name,time_msg,action.actionType.getDBName());
+            String entry = String.format("%-20s %-20s %-20s", action.player.name, time_msg, action.actionType.getTransName(mLang));
 
-            SendMsg sendMsg = new SendMsg(entry,SendMsgType.PLAIN);
-            SendMsg sendMsg_target = new SendMsg(target_id,SendMsgType.TRANSLATE_KEY);
-            SendMsg sendMsg_endline = new SendMsg("\n",SendMsgType.PLAIN);
+            SendMsg sendMsg = new SendMsg(entry, SendMsgType.PLAIN);
+            SendMsg sendMsg_target = new SendMsg(target_id, SendMsgType.TRANSLATE_KEY);
+            SendMsg sendMsg_endline = new SendMsg("\n", SendMsgType.PLAIN);
 
             send_msg_chain.add(sendMsg);
             send_msg_chain.add(sendMsg_target);

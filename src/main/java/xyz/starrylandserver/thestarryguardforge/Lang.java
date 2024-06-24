@@ -7,15 +7,22 @@ import java.util.Properties;
 public class Lang {//语言文件类
     private Properties prop;
     private String langFilePath;//语言文件的路径
-    private final String DEFAULT_LANG_FILE = "initializing_database = 初始化数据库\n" +
-            "no_permission = 你没有权限操作\n" +
-            "database_connected = 数据库的连接\n" +
-            "illegal_page = 不合法的页数\n" +
-            "no_data = 没有数据\n" +
+    private static final String DEFAULT_LANG_FILE = "initializing_database = 初始化数据库\n" +
+            "no_permission = §4你没有权限操作\n" +
+            "database_connected = 连接到数据库\n" +
+            "illegal_page = §4不合法的页数\n" +
+            "no_data = §8没有数据\n" +
             "point_query_enable = 已启用方块查询\n" +
             "point_query_disable = 已关闭方块查询\n" +
             "ret_msg_tittle = §8---§4TheStarryGuard查询结果§8----§1共§3%s§1条记录§8----§1第 §3%s§8/§3%s §1页§8-----§f\n" +
-            "ret_msg_foot  = 使用/tg page<页数>可以查询指定的页数.";
+            "ret_msg_foot  = §f使用§8/tg page<页数>§f可以查询指定的页数.\n" +
+            "attack_entity = 攻击了\n" +
+            "attack_player = 攻击了玩家\n" +
+            "fire_block = 点燃了\n" +
+            "block_place = 放置了\n" +
+            "block_break = 破坏了\n" +
+            "bukkit_use = 使用了桶\n" +
+            "right_click_block = 右键了";
 
     private Lang() {
     }
@@ -28,10 +35,9 @@ public class Lang {//语言文件类
         prop.load(reader);
     }
 
-    public synchronized void genDefaultConf(String file_path) throws IOException//生成默认的配置文件
+    public synchronized static void genDefaultConf(String file_path) throws IOException//生成默认的配置文件
     {
-       File lang = new File(file_path + "/zh_cn.properties");//默认配置文件的路径
-        BufferedWriter writer = new BufferedWriter(new FileWriter(lang));//创建一个输出流
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file_path), StandardCharsets.UTF_8));
         writer.write(DEFAULT_LANG_FILE);//写入配置文件的默认信息
         writer.close();//关闭输出流
     }
@@ -43,8 +49,8 @@ public class Lang {//语言文件类
         temp.ReloadConfig();
         return temp;
     }
-    public synchronized String getVal(String key)
-    {
-       return this.prop.getProperty(key);//获取语言
+
+    public synchronized String getVal(String key) {
+        return this.prop.getProperty(key);//获取语言
     }
 }

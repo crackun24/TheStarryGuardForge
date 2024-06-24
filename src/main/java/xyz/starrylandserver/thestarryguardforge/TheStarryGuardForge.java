@@ -4,18 +4,14 @@ import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 import xyz.starrylandserver.thestarryguardforge.Adapter.ForgeAdapter;
 import xyz.starrylandserver.thestarryguardforge.Command.CmdMain;
-import xyz.starrylandserver.thestarryguardforge.Command.QueryNear;
 import xyz.starrylandserver.thestarryguardforge.Event.AttEntityEvent;
 import xyz.starrylandserver.thestarryguardforge.Event.BlockBreakEvent;
-import xyz.starrylandserver.thestarryguardforge.Event.KillEntityEvent;
 import xyz.starrylandserver.thestarryguardforge.Event.RightClickEvent;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -34,7 +30,6 @@ public class TheStarryGuardForge {
         MinecraftForge.EVENT_BUS.register(new BlockBreakEvent(serviceMain));//注册方块破坏事件
         MinecraftForge.EVENT_BUS.register(new RightClickEvent(serviceMain));//注册右键方块的事件
         MinecraftForge.EVENT_BUS.register(new AttEntityEvent(serviceMain));//注册右键方块的事件
-        MinecraftForge.EVENT_BUS.register(new KillEntityEvent(serviceMain));//注册右键方块的事件
         MinecraftForge.EVENT_BUS.register(new CmdMain(serviceMain));//注册右键方块的事件
         MinecraftForge.EVENT_BUS.register(this);
     }

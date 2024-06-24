@@ -16,13 +16,6 @@ public class TgConfig {//配置文件类
                         mysql_pass = pass
                         mysql_port = port
 
-                        hook_block_break_event = true
-                        hook_block_place_event = true
-                        hook_attack_entity_event = true
-                        hook_attack_player_event = true
-                        hook_kill_entity_event = true
-                        hook_kill_player_event = true
-
                         query_op_only = true
                         rollback_op_only = true
                         lang = zh_cn

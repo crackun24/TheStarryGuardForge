@@ -69,7 +69,7 @@ public class TgMain {
             if(Objects.equals(lang, "zh_cn"))//如果是使用的默认的语言
             {
                 String default_file_path = file_path + "/zh_cn.properties";
-                this.lang.genDefaultConf(default_file_path);//默认语言不存在则直接生成默认的语言文件
+                Lang.genDefaultConf(default_file_path);//默认语言不存在则直接生成默认的语言文件
             }else{
                 throw new RuntimeException("Could not find the lang file.");
             }

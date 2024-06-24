@@ -2,7 +2,9 @@ package xyz.starrylandserver.thestarryguardforge.Event;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import xyz.starrylandserver.thestarryguardforge.DataType.*;
@@ -15,9 +17,14 @@ public class AttEntityEvent {
     TgMain main;
 
     @SubscribeEvent
-    public void onAttackEntity(AttackEntityEvent event) {
-        Player mc_player = event.getEntity();
-        Entity be_attacked_entity = event.getTarget();
+    public void onAttackEntity(LivingHurtEvent event) {
+        if (!(event.getSource().getEntity() instanceof Player))//判断是否是玩家触发了事件
+        {
+            return;
+        }
+
+        Player mc_player = (Player) event.getSource().getEntity();
+        LivingEntity be_attacked_entity = event.getEntity();
         BlockPos pos = be_attacked_entity.getOnPos();//获取位置
 
         ActionType action_type;//行为的类型
@@ -28,19 +35,29 @@ public class AttEntityEvent {
 
         String dimension_str = mc_player.level().dimension().location().toString();//获取维度的名字
 
-        if (event.getTarget() instanceof Player)//判断攻击的对象是否为玩家
+        if (be_attacked_entity instanceof Player be_attacked_player)//判断攻击的对象是否为玩家
         {
-            Player be_attacked_player = (Player) be_attacked_entity;//将攻击的实体转换为玩家类型
-
-            action_type = ActionType.ATTACK_PLAYER_ACTION;
+            //将攻击的实体转换为玩家类型
             target_type = TargetType.PLAYER;
+
+            if (be_attacked_player.getHealth() - event.getAmount() <= 0)//判断是击杀玩家还是攻击玩家
+            {
+                action_type = ActionType.KILL_PLAYER_ACTION;//血量小于0则为击杀事件
+            } else {
+                action_type = ActionType.ATTACK_PLAYER_ACTION;
+            }
 
             temp_target_data_slot.put("name", be_attacked_player.getName().getString());
             temp_target_data_slot.put("uuid", be_attacked_player.getStringUUID());
         } else {//攻击实体
-            action_type = ActionType.ATTACK_PLAYER_ACTION;
 
-            action_type = ActionType.ATTACK_ENTITY_ACTION;
+            if (be_attacked_entity.getHealth() - event.getAmount() <= 0)//判断是击杀实体还是伤害实体
+            {
+                action_type = ActionType.KILL_ENTITY_ACTION;
+            } else {
+                action_type = ActionType.ATTACK_ENTITY_ACTION;
+            }
+
             target_type = TargetType.ENTITY;
             temp_target_data_slot.put("name", be_attacked_entity.getType().getDescriptionId());
         }
