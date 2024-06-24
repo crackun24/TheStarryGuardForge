@@ -2,16 +2,6 @@ package xyz.starrylandserver.thestarryguardforge.DataType;
 
 
 public class Action {//玩家的行为类
-//    public static final String ATTACK_ACTION = "attack";
-//    public static final String FIRE_BLOCK_ACTION = "fire_block";
-//    public static final String BLOCK_PLACE_ACTION = "block_place";
-//    public static final String TNT_USE_ACTION = "tnt_use";
-//    public static final String BLOCK_BREAK_ACTION = "block_break";
-//    public static final String KILL_ENTITY_ACTION = "kill_entity";
-//    public static final String KILL_PLAYER_ACTION = "kill_player";
-//    public static final String BUKKIT_USE_ACTION = "bukkit_use";//使用桶装物品
-//    public static final String CONTAINER_CHANGE_ACTION = "container_change";//和容器的交互事件
-//    public static final String RIGHT_CLICK_BLOCK_ACTION = "right_click_block";//右键方块的事件
 
     public TgPlayer player;//触发这个事件的玩家
     public int posX;

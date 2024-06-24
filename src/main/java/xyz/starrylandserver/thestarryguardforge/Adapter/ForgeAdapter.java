@@ -1,7 +1,6 @@
 package xyz.starrylandserver.thestarryguardforge.Adapter;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -11,7 +10,6 @@ import xyz.starrylandserver.thestarryguardforge.DataType.TgPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.awt.*;
 import java.util.List;
 import java.util.UUID;
 

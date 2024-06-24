@@ -27,8 +27,6 @@ public class Lang {//语言文件类
     private Lang() {
     }
 
-    final static String DEFAULT_LANG = "zh_cn";//默认使用的语言
-
     public synchronized void ReloadConfig() throws IOException {//重新加载语言文件
         File lang_file = new File(this.langFilePath);
         Reader reader = new InputStreamReader(new FileInputStream(lang_file), StandardCharsets.UTF_8);//以UTF-8的字符集读取配置文件数据

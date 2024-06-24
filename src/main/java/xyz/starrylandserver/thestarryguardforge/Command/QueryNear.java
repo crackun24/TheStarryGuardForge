@@ -1,19 +1,14 @@
 package xyz.starrylandserver.thestarryguardforge.Command;
 
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.model.user.UserManager;
-import net.luckperms.api.node.Node;
-import net.luckperms.api.node.NodeBuilder;
-import net.luckperms.api.node.types.PermissionNode;
 import net.luckperms.api.query.QueryOptions;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.server.permission.PermissionAPI;
 import xyz.starrylandserver.thestarryguardforge.DataType.QueryTask;
 import xyz.starrylandserver.thestarryguardforge.DataType.TgPlayer;
 import xyz.starrylandserver.thestarryguardforge.TgMain;

@@ -1,11 +1,9 @@
 package xyz.starrylandserver.thestarryguardforge.Event;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import xyz.starrylandserver.thestarryguardforge.DataType.*;
 import xyz.starrylandserver.thestarryguardforge.TgMain;
@@ -18,12 +16,11 @@ public class AttEntityEvent {
 
     @SubscribeEvent
     public void onAttackEntity(LivingHurtEvent event) {
-        if (!(event.getSource().getEntity() instanceof Player))//判断是否是玩家触发了事件
+        if (!(event.getSource().getEntity() instanceof Player mc_player))//判断是否是玩家触发了事件
         {
             return;
         }
 
-        Player mc_player = (Player) event.getSource().getEntity();
         LivingEntity be_attacked_entity = event.getEntity();
         BlockPos pos = be_attacked_entity.getOnPos();//获取位置
 
