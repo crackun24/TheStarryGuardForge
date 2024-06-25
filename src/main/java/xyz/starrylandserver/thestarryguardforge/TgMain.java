@@ -20,13 +20,14 @@ import java.util.Objects;
 
 //模组的主处理类
 public class TgMain {
+    String modType = "TheStarryGuardForge";
     TgConfig config;//配置对象
     TgAdapter adapter;//不同加载器的适配器
     Lang lang;//语言类
     DataBase database;//数据库管理类
     DataStorage dataStorage;//数据存储类
     DataQuery dataQuery;//数据查询类
-
+    Feedback feedback;//反馈
 
     private TgMain()//私有构造函数
     {
@@ -66,11 +67,11 @@ public class TgMain {
 
         if (!Files.exists(Paths.get(str_file_path)))//判断文件是否存在
         {
-            if(Objects.equals(lang, "zh_cn"))//如果是使用的默认的语言
+            if (Objects.equals(lang, "zh_cn"))//如果是使用的默认的语言
             {
                 String default_file_path = file_path + "/zh_cn.properties";
                 Lang.genDefaultConf(default_file_path);//默认语言不存在则直接生成默认的语言文件
-            }else{
+            } else {
                 throw new RuntimeException("Could not find the lang file.");
             }
         }
@@ -84,13 +85,19 @@ public class TgMain {
         this.config = TgConfig.LoadConfig(conf_path);//加载配置文件
     }
 
+    public void InitFeedback()
+    {
+        this.feedback = new Feedback(this.modType);
+        feedback.start();
+    }
+
     public void start()//启动服务
     {
         try {
             LoadConf();//加载配置文件
             LoadLang();//加载语言文件
             InitDatabase();//初始化数据库
-
+            InitFeedback();//初始化反馈服务
         } catch (Exception e) {
             e.printStackTrace();
             adapter.ShutDownServer();//有异常直接关闭服务器

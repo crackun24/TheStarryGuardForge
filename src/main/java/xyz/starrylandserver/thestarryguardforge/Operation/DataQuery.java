@@ -118,15 +118,14 @@ public class DataQuery extends Thread {//数据查询类
         this.adapter.SendMsgWithTransToPlayer(task.player, send_msg_chain);//默认发送第一页的内容
     }
 
-    private Boolean GetCloseState()//获取关闭状态
-    {
+    private synchronized boolean getCloseState() {
         return this.mCloseState;
     }
 
     @Override
     public void run()//启动线程
     {
-        while (!this.mCloseState)//主线程未关闭则一直运行查询线程
+        while (!getCloseState())//主线程未关闭则一直运行查询线程
         {
             try {
                 sleep(1000);

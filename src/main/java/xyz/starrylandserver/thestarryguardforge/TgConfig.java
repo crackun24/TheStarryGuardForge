@@ -5,8 +5,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 public class TgConfig {//配置文件类
+    static final String CONFIG_VERSION_USING  = "1.0";//使用的配置文件的版本
     static final String CONFIG_FILE_NAME = "TheStarryGuard/TheStarryGuard.properties";//配置文件的名称
     static final String DEFAULT_CONFIG_DATA = """
+                        config_version = 1.0
                         #data base type can be sqlite、 mysql
                         data_storage_type = sqlite
 
@@ -53,6 +55,11 @@ public class TgConfig {//配置文件类
         temp_obj.prop = new Properties();//创建一个properties文件的解析对象
 
         temp_obj.prop.load(reader);//解析配置文件
+
+        if(!temp_obj.GetValue("config_version").equals(CONFIG_VERSION_USING))//判断是否使用的是正确的配置文件版本
+        {
+            throw new RuntimeException("Incorrect config version you are using.");
+        }
 
         return temp_obj;//返回创建的对象
     }

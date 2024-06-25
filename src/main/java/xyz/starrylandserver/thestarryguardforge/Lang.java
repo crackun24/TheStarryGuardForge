@@ -9,7 +9,7 @@ public class Lang {//语言文件类
     private String langFilePath;//语言文件的路径
     private static final String DEFAULT_LANG_FILE = "initializing_database = 初始化数据库\n" +
             "no_permission = §4你没有权限操作\n" +
-            "database_connected = 连接到数据库\n" +
+            "database_connected = 已连接到数据库\n" +
             "illegal_page = §4不合法的页数\n" +
             "no_data = §8没有数据\n" +
             "point_query_enable = 已启用方块查询\n" +
@@ -18,6 +18,8 @@ public class Lang {//语言文件类
             "ret_msg_foot  = §f使用§8/tg page<页数>§f可以查询指定的页数.\n" +
             "attack_entity = 攻击了\n" +
             "attack_player = 攻击了玩家\n" +
+            "kill_entity = 击杀了\n" +
+            "kill_player = 击杀了玩家\n" +
             "fire_block = 点燃了\n" +
             "block_place = 放置了\n" +
             "block_break = 破坏了\n" +
