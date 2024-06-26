@@ -1,7 +1,5 @@
 package xyz.starrylandserver.thestarryguardforge.DataType;
 
-import xyz.starrylandserver.thestarryguardforge.Feedback;
-
 public class FeedBackJson {
     private String uuid;//唯一标识码
     private long time;//启动的时间
